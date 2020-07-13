@@ -11,6 +11,7 @@ namespace _0CMD.Core
     public static class CMD
     {
         public static readonly Parser PR = new Parser();
+        public static readonly Drawer DW = new Drawer();
 
 
         /// <summary>
@@ -135,28 +136,6 @@ namespace _0CMD.Core
 
 
 
-        public static void Draw(object obj, bool inNewLine = true)
-        {
-            Draw(obj, FColor, inNewLine);
-        }
-        public static void Draw(object obj, ConsoleColor color, bool inNewLine = true)
-        {
-            Draw(obj, color, BColor, inNewLine);
-        }
-        public static void Draw(object obj, ConsoleColor fColor, ConsoleColor bColor, bool inNewLine = true)
-        {
-            ConsoleColor lastFColor = FColor;
-            ConsoleColor lastBColor = BColor;
-            
-            FColor = fColor;
-            BColor = bColor;
-
-            if (inNewLine) { Console.WriteLine(obj); }
-            else { Console.Write(obj); }
-
-            FColor = lastFColor;
-            BColor = lastBColor;
-        }
 
         #endregion
 
@@ -198,6 +177,8 @@ namespace _0CMD.Core
         {
             return Console.ReadLine();
         }
+
+
 
 
         /// <summary>

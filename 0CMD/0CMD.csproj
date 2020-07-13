@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\IDrawer.cs" />
     <Compile Include="API\IParser.cs" />
     <Compile Include="Core\CMD.cs" />
+    <Compile Include="Core\Drawer.cs" />
     <Compile Include="Core\Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

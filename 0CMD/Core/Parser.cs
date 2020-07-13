@@ -99,8 +99,8 @@ namespace _0CMD.Core
             {
                 while (true)
                 {
-                    CMD.Draw("> ", ConsoleColor.Yellow, false);
-                    CMD.Draw(title, titleColor ?? CMD.FColor, false);
+                    CMD.DW.Draw("> ", ConsoleColor.Yellow, false);
+                    CMD.DW.Draw(title, titleColor ?? CMD.FColor, false);
                     string input = null;
                     if (bool.TryParse((input = CMD.RL()), out bool output))
                     {
@@ -112,7 +112,7 @@ namespace _0CMD.Core
                             }
                             else
                             {
-                                CMD.Draw(string.Format(error, ++attempts, input, output), ConsoleColor.Red, true);
+                                CMD.DW.Draw(string.Format(error, ++attempts, input, output), ConsoleColor.Red, true);
                             }
                         }
                         else
@@ -122,13 +122,12 @@ namespace _0CMD.Core
                     }
                     else
                     {
-                        CMD.Draw(string.Format(error, ++attempts, input, input), ConsoleColor.Red, true);
+                        CMD.DW.Draw(string.Format(error, ++attempts, input, input), ConsoleColor.Red, true);
                     }
                 }
             }, inputColor ?? CMD.FColor, null);
             return result;
         }
-
 
         public byte ParseByte(string title = "Enter byte: ", string error = "[{0}] Error: {1}", Func<byte, string, bool> func = null, ConsoleColor? titleColor = null, ConsoleColor? inputColor = null)
         {
@@ -138,8 +137,8 @@ namespace _0CMD.Core
             {
                 while (true)
                 {
-                    CMD.Draw("> ", ConsoleColor.Yellow, false);
-                    CMD.Draw(title, titleColor ?? CMD.FColor, false);
+                    CMD.DW.Draw("> ", ConsoleColor.Yellow, false);
+                    CMD.DW.Draw(title, titleColor ?? CMD.FColor, false);
                     string input = null;
                     if (byte.TryParse((input = CMD.RL()), out byte output))
                     {
@@ -151,7 +150,7 @@ namespace _0CMD.Core
                             }
                             else
                             {
-                                CMD.Draw(string.Format(error, ++attempts, input, output));
+                                CMD.DW.Draw(string.Format(error, ++attempts, input, output));
                             }
                         }
                         else
@@ -161,11 +160,17 @@ namespace _0CMD.Core
                     }
                     else
                     {
-                        CMD.Draw(string.Format(error, ++attempts, input, output));
+                        CMD.DW.Draw(string.Format(error, ++attempts, input, output));
                     }
                 }
             }, inputColor ?? CMD.FColor, null);
             return result;
         }
+
+
+
+
+
+
     }
 }
