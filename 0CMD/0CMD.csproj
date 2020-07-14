@@ -44,7 +44,10 @@
     <Compile Include="API\IDrawer.cs" />
     <Compile Include="API\IParser.cs" />
     <Compile Include="Core\CMD.cs" />
+    <Compile Include="Core\ColorInfo.cs" />
+    <Compile Include="Core\CursorInfo.cs" />
     <Compile Include="Core\Drawer.cs" />
+    <Compile Include="Core\HistoryInfo.cs" />
     <Compile Include="Core\Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

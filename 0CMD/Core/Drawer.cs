@@ -9,9 +9,6 @@ namespace _0CMD.Core
 {
     public class Drawer : IDrawer
     {
-        
-        
-        
         public void Draw(object obj)
         {
             Draw(obj, true);
@@ -19,29 +16,31 @@ namespace _0CMD.Core
 
         public void Draw(object obj, bool inNewLine = true)
         {
-            Draw(obj, CMD.FColor, inNewLine);
+            Draw(obj, CMD.COLOR.F, inNewLine);
         }
 
         public void Draw(object obj, ConsoleColor color, bool inNewLine = true)
         {
-            Draw(obj, color, CMD.BColor, inNewLine);
+            Draw(obj, color, CMD.COLOR.B, inNewLine);
         }
 
         public void Draw(object obj, ConsoleColor fColor, ConsoleColor bColor, bool inNewLine = true)
         {
-            ConsoleColor lastFColor = CMD.FColor;
-            ConsoleColor lastBColor = CMD.BColor;
+            ConsoleColor lastFColor = CMD.COLOR.F;
+            ConsoleColor lastBColor = CMD.COLOR.B;
 
-            CMD.FColor = fColor;
-            CMD.BColor = bColor;
+            CMD.COLOR.F = fColor;
+            CMD.COLOR.B = bColor;
 
             if (inNewLine) { Console.WriteLine(obj); }
             else { Console.Write(obj); }
+            if (!string.IsNullOrEmpty(obj?.ToString()))
+            {
+                CMD.HISTORY.Add(new HistoryInfo(obj, CMD.HISTORY.Type.CLIENT));
+            }
 
-            CMD.FColor = lastFColor;
-            CMD.BColor = lastBColor;
+            CMD.COLOR.F = lastFColor;
+            CMD.COLOR.B = lastBColor;
         }
-
-
     }
 }
