@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace _0CMD.Core
@@ -42,29 +45,68 @@ namespace _0CMD.Core
 
         public static int R()
         {
+            return R(true);
+        }
+        internal static int R(bool on)
+        {
             int res = Console.Read();
             OnRead?.Invoke(res);
             LastR = res;
-            HISTORY.Add(new HistoryInfo(res, HISTORY.Type.USER));
-            return res;
-        }
-        public static string RL()
-        {
-            string res = Console.ReadLine();
-            OnReadLine?.Invoke(res);
-            LastRL = res;
-            if (!string.IsNullOrEmpty(res))
+            if (on)
             {
                 HISTORY.Add(new HistoryInfo(res, HISTORY.Type.USER));
             }
             return res;
         }
+
+        public static string RL()
+        {
+            return RL(true);
+        }
+        public static string RL(bool maybeEmpty = true)
+        {
+            return RL(maybeEmpty, true);
+        }
+        internal static string RL(bool maybeEmpty, bool on)
+        {
+            string res = null;
+
+            if (maybeEmpty)
+            {
+                res = Console.ReadLine();
+            }
+            else
+            {
+                int lastTop = CURSOR.Top;
+                int lastLeft = CURSOR.Left;
+
+                while (string.IsNullOrEmpty((res = Console.ReadLine())))
+                {
+                    CURSOR.SetPosition(lastTop, lastLeft);
+                }
+            }
+            if (on)
+            {
+                HISTORY.Add(new HistoryInfo(res, HISTORY.Type.USER));
+            }
+            OnReadLine?.Invoke(res);
+            LastRL = res;
+            return res;
+        }
+
         public static ConsoleKeyInfo RK()
+        {
+            return RK(true);
+        }
+        internal static ConsoleKeyInfo RK(bool on)
         {
             ConsoleKeyInfo res = Console.ReadKey();
             OnReadKey?.Invoke(res);
             LastRK = res;
-            HISTORY.Add(new HistoryInfo(res, HISTORY.Type.USER));
+            if (on)
+            {
+                HISTORY.Add(new HistoryInfo(res, HISTORY.Type.USER));
+            }
             return res;
         }
 
@@ -100,9 +142,165 @@ namespace _0CMD.Core
 
 
 
-
         public static readonly Parser PR = new Parser();
         public static readonly Drawer DW = new Drawer();
+
+
+
+
+        #region DISPLAY
+        public static class DISPLAY
+        {
+            private static Thread displayThread;
+
+
+            private static int listnerInterval = 25;
+            public static int ListnerInterval
+            {
+                get { return listnerInterval < 0 ? 0 : listnerInterval; }
+                set { if (value > 0) { listnerInterval = value; } }
+            }
+
+
+            public delegate void Resized(int newHeight, int newWidth);
+
+            public static event Resized OnWindowResized;
+            public static event Resized OnBufferResized;
+            public static event Resized OnLargestResized;
+
+            public delegate void ListnerHandle(int wh, int ww, int bh, int bw, int lwh, int lww);
+            public static ListnerHandle ListnerCallback;
+
+
+            public static void StartListner()
+            {
+                displayThread = new Thread(() =>
+                {
+                    int lastWH = WH;
+                    int lastWW = WW;
+
+                    int lastBH = BH;
+                    int lastBW = BW;
+
+                    int lastLWH = LWH;
+                    int lastLWW = LWW;
+
+                    while (true)
+                    {
+                        if (ListnerWResize)
+                        {
+                            if (lastWH != WH || lastWW != WW)
+                            {
+                                lastWH = WH;
+                                lastWW = WW;
+                                OnWindowResized?.Invoke(lastWH, lastWW);
+                            }
+                        }
+
+                        if (ListnerBResize)
+                        {
+                            if (lastBH != BH || lastBW != BW)
+                            {
+                                lastBH = BH;
+                                lastBW = BW;
+                                OnBufferResized?.Invoke(lastBH, lastBW);
+                            }
+                        }
+
+                        if (ListnerLWResize)
+                        {
+                            if (lastLWH != LWH || lastLWW != LWW)
+                            {
+                                lastLWH = LWH;
+                                lastLWW = LWW;
+                                OnLargestResized?.Invoke(lastLWH, lastLWW);
+                            }
+                        }
+
+                        ListnerCallback?.Invoke(lastWH, lastWW, lastBH, lastBW, lastLWH, lastLWW);
+                        Thread.Sleep(ListnerInterval);
+                    }
+                });
+                displayThread.Start();
+            }
+            public static void StopListner()
+            {
+                displayThread.Abort();
+            }
+
+
+
+            #region WINDOW
+            public static int LastWH { get; private set; }
+            public static int LastWW { get; private set; }
+
+            public static bool ListnerWResize { get; set; } = false;
+
+            public static int WH
+            {
+                get { return Console.WindowHeight; }
+                set
+                {
+                    LastWH = WH;
+                    Console.WindowHeight = value;
+                }
+            }
+            public static int WW
+            {
+                get { return Console.WindowWidth; }
+                set
+                {
+                    LastWW = WW;
+                    Console.WindowWidth = value;
+                }
+            }
+            #endregion
+
+
+            #region BUFFER
+            public static int LastBH { get; private set; }
+            public static int LastBW { get; private set; }
+
+            public static bool ListnerBResize { get; set; } = false;
+
+            public static int BH
+            {
+                get { return Console.BufferHeight; }
+                set
+                {
+                    LastBH = BH;
+                    Console.BufferHeight = value;
+                }
+            }
+            public static int BW
+            {
+                get { return Console.BufferWidth; }
+                set
+                {
+                    LastBW = BW;
+                    Console.BufferWidth = value;
+                }
+            }
+            #endregion
+
+
+            #region LARGEST
+            public static int LastLWH { get; private set; }
+            public static int LastLWW { get; private set; }
+
+            public static bool ListnerLWResize { get; set; } = false;
+
+            public static int LWH
+            {
+                get { return Console.LargestWindowHeight; }
+            }
+            public static int LWW
+            {
+                get { return Console.LargestWindowWidth; }
+            }
+            #endregion
+        }
+        #endregion
 
 
         #region COLOR
@@ -279,14 +477,18 @@ namespace _0CMD.Core
             
             public static readonly List<HistoryInfo> Info = new List<HistoryInfo>();
 
+            public static bool On { get; set; } = true;
             public static HistoryInfo Last { get; private set; }
             public static int Count => Info.Count;
 
 
             public static void Add(HistoryInfo info)
             {
-                Info.Add((Last = info));
-                OnAdded?.Invoke(Last);
+                if (On)
+                {
+                    Info.Add((Last = info));
+                    OnAdded?.Invoke(Last);
+                }
             }
 
             public static void Clear()

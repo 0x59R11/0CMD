@@ -213,7 +213,7 @@ namespace _0CMD.Core
                     CMD.DW.Draw(title, titleColor ?? CMD.COLOR.F, false);
 
                     string input = null;
-                    (bool isTrue, T value) answer = answerCallback.Invoke((input = CMD.RL()));
+                    (bool isTrue, T value) answer = answerCallback.Invoke((input = CMD.RL(false)));
                     if (answer.isTrue)
                     {
                         if (func != null)
